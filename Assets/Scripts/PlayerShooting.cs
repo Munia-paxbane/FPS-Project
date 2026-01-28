@@ -1,10 +1,11 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerShooting : MonoBehaviour
 {
     public Gun gun;
     private bool isHoldingShoot;
-
+    public Transform gunHolder;
     void OnShoot()
     {
 
