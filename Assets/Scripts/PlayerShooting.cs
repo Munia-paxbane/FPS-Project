@@ -28,4 +28,12 @@ public class PlayerShooting : MonoBehaviour
         if (isHoldingShoot && gun != null)
             gun.Shoot();
     }
+    public void OnDrop()
+    {
+        if(gun !=null)
+        {
+            gun.Drop();
+            gun = null;
+        }
+    }
 }

@@ -15,7 +15,7 @@ public class Gun : MonoBehaviour
     public float recoilDistance = 0.1f;
     public float recoilSpeed = 15f;
     public GameObject weaponFlash;
-
+    public GameObject droppedWeapon;
     // State
     private int currentAmmo;
     private bool isReloading = false;
@@ -115,5 +115,10 @@ public class Gun : MonoBehaviour
         }
         transform.localPosition = initialPosition;
     }
+    public void Drop()
+    {
+        Instantiate(droppedWeapon, transform.position, transform.rotation);
 
+        Destroy(gameObject);
+    }
 }
