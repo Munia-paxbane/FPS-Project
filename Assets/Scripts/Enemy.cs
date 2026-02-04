@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.AI;                           // Needed for NavMeshAgent
 
@@ -25,6 +26,14 @@ public class Enemy : MonoBehaviour
     private Transform playerTransform;           // Reference to player
     private bool canSeePlayer;                   // Flag to indicate if player is visible
     private Vector3 lastKnownPlayerPosition;     // Last position where player was seen
+
+    public GameObject bulletPrefab;
+    public Transform bulletSpawnPoint;
+    public float bloom;
+    public float fireRate;
+    public GameObject weaponFlash;
+
+    private float LastShotTime = 0f;
 
     // Enemy states
     public enum State { Idle, Patrolling, Chasing, Attacking }
@@ -152,7 +161,7 @@ public class Enemy : MonoBehaviour
     {
         idleTimeCounter = idleTime;
         agent.ResetPath();                  // Stand still while "attacking"
-        // Shooting logic will be added in next episode
+        Shoot();
 
         if (Vector3.Distance(transform.position, playerTransform.position) > attackDistance || !canSeePlayer)
         {
@@ -224,5 +233,36 @@ public class Enemy : MonoBehaviour
         }
 
         SetLastKnownPlayerPosition();
+    }
+    private void Shoot()
+    {
+        if(Time.time >LastShotTime + fireRate)
+        {
+            Vector3 directionToPlayer = playerTransform.position - transform.position;
+            directionToPlayer.Normalize();
+
+            Quaternion bulletRotation = Quaternion.LookRotation(directionToPlayer);
+
+            float maxInaccuracy = 10f;
+            float currentInaccuracy = bloom * maxInaccuracy;
+
+            float randomYaw = Random.Range(-currentInaccuracy, currentInaccuracy);
+            float randomPitch = Random.Range(-currentInaccuracy, currentInaccuracy);
+
+            bulletRotation *= Quaternion.Euler(randomPitch, randomYaw + 90f, 0f);
+
+            Instantiate(
+                bulletPrefab,
+                bulletSpawnPoint.position,
+                bulletRotation
+                );
+
+            Instantiate(
+                weaponFlash,
+                bulletSpawnPoint.position,
+                bulletSpawnPoint.rotation
+                );
+            LastShotTime = Time.time;
+        }
     }
 }
