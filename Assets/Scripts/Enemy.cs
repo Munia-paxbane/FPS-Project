@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;                           // Needed for NavMeshAgent
 
@@ -43,7 +44,9 @@ public class Enemy : MonoBehaviour
         // Patrol points setup
         GameObject patrolParent = GameObject.FindGameObjectWithTag("PatrolPoint");
         patrolPoints = new List<Transform>(patrolParent.GetComponentsInChildren<Transform>())
-            .FindAll(t => t != patrolParent.transform).ToArray();
+               .FindAll(t => t != patrolParent.transform)
+               .Where(t => t != patrolParent.transform)
+               .ToArray();
 
         idleTimeCounter = idleTime;
     }
@@ -74,6 +77,8 @@ public class Enemy : MonoBehaviour
 
         // Always look at player if seen
         LookAtPlayer();
+
+        SetLastKnownPlayerPosition();
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -187,7 +192,7 @@ public class Enemy : MonoBehaviour
 
     private void LookAtPlayer()
     {
-        if (canSeePlayer)
+        if (canSeePlayer && Vector3.Distance(transform.position, playerTransform.position) <= attackDistance)
         {
             // Rotate to face player, only on XZ plane
             Vector3 lookPos = new Vector3(playerTransform.position.x, transform.position.y, playerTransform.position.z);
@@ -197,7 +202,7 @@ public class Enemy : MonoBehaviour
 
     private void SetLastKnownPlayerPosition()
     {
-        if (!canSeePlayer)
+        if (canSeePlayer)
         {
             lastKnownPlayerPosition = playerTransform.position;
         }
@@ -210,11 +215,12 @@ public class Enemy : MonoBehaviour
         if (Physics.Raycast(transform.position, directionToPlayer, out hit, maxVisionDistance))
         {
             canSeePlayer = hit.transform == playerTransform; // True if ray hits player directly
-        }
 
-        if (canSeePlayer && state != State.Attacking)
-        {
-            state = State.Chasing; // Begin chasing if player visible
+            if (canSeePlayer && state != State.Attacking)
+            {
+                state = State.Chasing; // Begin chasing if player visible
+            }
+
         }
 
         SetLastKnownPlayerPosition();
