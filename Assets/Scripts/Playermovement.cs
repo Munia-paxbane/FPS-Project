@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,12 +7,16 @@ public class Playermovement : MonoBehaviour
     public float moveSpeed = 5f;
     public float jumpForce = 5f;
 
+    public AudioClip footStepSFX;
+
     private Rigidbody rb;
     private Vector2 moveInput;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        StartCoroutine(PlayFootSep());
         
     }
 
@@ -41,4 +46,15 @@ public class Playermovement : MonoBehaviour
     rb.linearVelocity = new Vector3(direction.x * moveSpeed, rb.linearVelocity.y, direction.z * moveSpeed);
     }
 
+    IEnumerator PlayFootSep()
+    {
+        while (true)
+        {
+            if(rb.linearVelocity.magnitude> 0.1f)
+            {
+               AudioManager.instance.PlaySFX(footStepSFX);
+            }
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
 }

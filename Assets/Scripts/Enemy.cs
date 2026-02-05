@@ -13,6 +13,8 @@ public class Enemy : MonoBehaviour
     private Material originalMat;                // Original material for blinking effect
     public Material hitMat;                      // Material to show when enemy is hit
 
+    public AudioClip shootingSFX;
+
     private NavMeshAgent agent;                  // NavMeshAgent for pathfinding
     public int currentPointIndex = 0;            // Current patrol point index
     public Vector3 currentTarget;                // Current patrol target
@@ -109,14 +111,7 @@ public class Enemy : MonoBehaviour
 
     private void Die()
     {
-        if (!this.enabled) return;         // Stop all actions if dead
-        rb.freezeRotation = false;         // Allow enemy to tip over
-        transform.rotation = Quaternion.Euler(
-            transform.rotation.x,
-            transform.rotation.y,
-            transform.rotation.z + 5f // Slight rotation on Z so enemy tips over
-        );
-        this.enabled = false;              // Disable script
+        Destroy(gameObject);            // Disable script
     }
 
     IEnumerator Blink()
@@ -250,6 +245,8 @@ public class Enemy : MonoBehaviour
             float randomPitch = Random.Range(-currentInaccuracy, currentInaccuracy);
 
             bulletRotation *= Quaternion.Euler(randomPitch, randomYaw + 90f, 0f);
+
+            AudioManager.instance.PlaySFX(shootingSFX,0.5f);
 
             Instantiate(
                 bulletPrefab,
